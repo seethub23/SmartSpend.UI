@@ -1,0 +1,141 @@
+$primary: #667eea;
+$danger: #e53935;
+$success: #43a047;
+
+.reports {
+  max-width: 1200px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 24px;
+    color: #333;
+    margin: 0 0 4px;
+  }
+
+  p {
+    color: #888;
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+
+  select {
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+
+    &:focus { border-color: $primary; }
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #888;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .card-icon {
+    font-size: 28px;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  p {
+    color: #888;
+    font-size: 13px;
+    margin: 0 0 4px;
+  }
+
+  h3 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  &.income {
+    .card-icon { background: #e8f5e9; }
+    h3 { color: $success; }
+  }
+
+  &.expense {
+    .card-icon { background: #ffebee; }
+    h3 { color: $danger; }
+  }
+
+  &.savings {
+    .card-icon { background: #e3f2fd; }
+    h3 { color: $primary; }
+  }
+
+  &.rate {
+    .card-icon { background: #f3e5f5; }
+    h3 { color: #9c27b0; }
+  }
+}
+
+.chart-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 24px;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    margin-bottom: 0;
+  }
+}
+
+.empty-chart {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 16px;
+}

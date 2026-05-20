@@ -1,0 +1,115 @@
+<div class="reports">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>Reports & Analytics 📈</h2>
+      <p>Analyze your spending patterns</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <select [(ngModel)]="currentMonth" (change)="onMonthChange()">
+        @for (m of months; track m.value) {
+          <option [value]="m.value">{{ m.label }}</option>
+        }
+      </select>
+      <select [(ngModel)]="currentYear" (change)="onMonthChange()">
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading reports... ⏳</div>
+  } @else {
+
+    <!-- Summary Cards -->
+    <div class="summary-row">
+      <div class="summary-card income">
+        <div class="card-icon">💰</div>
+        <div>
+          <p>Total Income</p>
+          <h3>{{ formatCurrency(totalIncome()) }}</h3>
+        </div>
+      </div>
+      <div class="summary-card expense">
+        <div class="card-icon">💸</div>
+        <div>
+          <p>Total Expense</p>
+          <h3>{{ formatCurrency(totalExpense()) }}</h3>
+        </div>
+      </div>
+      <div class="summary-card savings">
+        <div class="card-icon">🏦</div>
+        <div>
+          <p>Net Savings</p>
+          <h3>{{ formatCurrency(totalSavings()) }}</h3>
+        </div>
+      </div>
+      <div class="summary-card rate">
+        <div class="card-icon">📊</div>
+        <div>
+          <p>Savings Rate</p>
+          <h3>
+            {{ totalIncome() > 0 ?
+              (totalSavings() / totalIncome() * 100 | number:'1.0-0') :
+              0 }}%
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="chart-card">
+      <apx-chart
+        [series]="barChartOptions().series"
+        [chart]="barChartOptions().chart"
+        [xaxis]="barChartOptions().xaxis"
+        [colors]="barChartOptions().colors"
+        [plotOptions]="barChartOptions().plotOptions"
+        [legend]="barChartOptions().legend"
+        [title]="barChartOptions().title">
+      </apx-chart>
+    </div>
+
+    <!-- Pie + Line Charts -->
+    <div class="charts-row">
+
+      <!-- Pie Chart -->
+      <div class="chart-card">
+        @if (pieChartOptions().series.length > 0) {
+          <apx-chart
+            [series]="pieChartOptions().series"
+            [chart]="pieChartOptions().chart"
+            [labels]="pieChartOptions().labels"
+            [colors]="pieChartOptions().colors"
+            [legend]="pieChartOptions().legend"
+            [title]="pieChartOptions().title">
+          </apx-chart>
+        } @else {
+          <div class="empty-chart">
+            No expense data for this month 😊
+          </div>
+        }
+      </div>
+
+      <!-- Line Chart -->
+      <div class="chart-card">
+        <apx-chart
+          [series]="lineChartOptions().series"
+          [chart]="lineChartOptions().chart"
+          [xaxis]="lineChartOptions().xaxis"
+          [colors]="lineChartOptions().colors"
+          [stroke]="lineChartOptions().stroke"
+          [markers]="lineChartOptions().markers"
+          [title]="lineChartOptions().title">
+        </apx-chart>
+      </div>
+
+    </div>
+  }
+
+</div>

@@ -1,0 +1,260 @@
+.dashboard {
+  max-width: 1200px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 24px;
+  color: #1f2937;
+  margin: 0 0 4px;
+}
+
+.dashboard-header p {
+  color: #5f6b7a;
+  margin: 0;
+  font-size: 14px;
+}
+
+.btn-add {
+  background: #245c73;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-add:hover,
+.btn-add:focus-visible {
+  background: #1c4a5d;
+}
+
+.btn-add:focus-visible {
+  outline: 3px solid rgba(36, 92, 115, 0.32);
+  outline-offset: 3px;
+}
+
+.loading,
+.empty-state,
+.error-alert {
+  text-align: center;
+  padding: 40px;
+  color: #5f6b7a;
+  font-size: 16px;
+}
+
+.error-alert {
+  background: #fff3f3;
+  border: 1px solid #f3b8bd;
+  color: #b4232f;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.card,
+.chart-card,
+.recent-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.card {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.card-icon {
+  font-size: 24px;
+  font-weight: 700;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.card.income .card-icon {
+  background: #e8f5e9;
+  color: #2f855a;
+}
+
+.card.expense .card-icon {
+  background: #ffebee;
+  color: #b4232f;
+}
+
+.card.savings .card-icon {
+  background: #e3f2fd;
+  color: #2b6cb0;
+}
+
+.card.transactions .card-icon {
+  background: #f4edff;
+  color: #6b5b95;
+}
+
+.card-info {
+  min-width: 0;
+}
+
+.card-info p {
+  color: #5f6b7a;
+  font-size: 13px;
+  margin: 0 0 4px;
+}
+
+.card-info h2 {
+  font-size: 22px;
+  color: #1f2937;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.chart-card,
+.recent-card {
+  padding: 20px;
+}
+
+.recent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.recent-header h2 {
+  font-size: 16px;
+  color: #1f2937;
+  margin: 0;
+}
+
+.recent-header a {
+  color: #245c73;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.recent-header a:hover,
+.recent-header a:focus-visible {
+  text-decoration: underline;
+}
+
+.transaction-item {
+  display: grid;
+  grid-template-columns: 40px minmax(140px, 1fr) minmax(120px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef2f5;
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-icon {
+  font-size: 18px;
+  font-weight: 700;
+  width: 40px;
+  height: 40px;
+  background: #f5f6fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transaction-category {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 2px;
+  font-size: 14px;
+}
+
+.transaction-date,
+.transaction-notes {
+  color: #5f6b7a;
+  font-size: 13px;
+  margin: 0;
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.transaction-amount.income {
+  color: #2f855a;
+}
+
+.transaction-amount.expense {
+  color: #b4232f;
+}
+
+@media (max-width: 900px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-header,
+  .recent-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-item {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .transaction-notes,
+  .transaction-amount {
+    grid-column: 2;
+  }
+}

@@ -1,0 +1,88 @@
+<div class="modal-overlay" (click)="close()"></div>
+
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="transaction-modal-title">
+  <div class="modal-header">
+    <h3 id="transaction-modal-title">{{ isEditing ? 'Edit Transaction' : 'Add Transaction' }}</h3>
+    <button class="close-btn" type="button" aria-label="Close dialog" (click)="close()">x</button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-alert" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="transaction-type">Type</label>
+        <select id="transaction-type" formControlName="type">
+          <option value="Income">Income</option>
+          <option value="Expense">Expense</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="transaction-category">Category</label>
+        <select id="transaction-category" formControlName="categoryId">
+          <option value="">Select category</option>
+          @for (category of filteredCategories(); track category.categoryId) {
+            <option [value]="category.categoryId">{{ category.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="transaction-amount">Amount (INR)</label>
+        <input
+          id="transaction-amount"
+          type="number"
+          formControlName="amount"
+          placeholder="Enter amount"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="transaction-payment-method">Payment Method</label>
+        <select id="transaction-payment-method" formControlName="paymentMethod">
+          @for (paymentMethod of paymentMethods; track paymentMethod) {
+            <option [value]="paymentMethod">{{ paymentMethod }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="transaction-date">Date</label>
+      <input id="transaction-date" type="date" formControlName="transactionDate" />
+    </div>
+
+    <div class="form-group">
+      <label for="transaction-notes">Notes (optional)</label>
+      <input
+        id="transaction-notes"
+        type="text"
+        formControlName="notes"
+        placeholder="Add a note..."
+      />
+    </div>
+
+    <div class="form-group checkbox">
+      <input id="transaction-recurring" type="checkbox" formControlName="isRecurring" />
+      <label for="transaction-recurring">Mark as recurring transaction</label>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+      <button
+        type="submit"
+        class="btn-save"
+        [disabled]="transactionForm.invalid || isLoading()"
+      >
+        {{ isLoading() ? 'Saving...' : (isEditing ? 'Update' : 'Add Transaction') }}
+      </button>
+    </div>
+  </form>
+</div>

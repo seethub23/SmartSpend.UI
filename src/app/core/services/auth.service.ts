@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -9,18 +10,18 @@ import { ApiService } from './api.service';
 export class AuthService {
   private readonly apiService = inject(ApiService);
 
-  register(data: unknown): Observable<string> {
-    return this.apiService.post<string>('auth/register', data).pipe(
-      tap((token) => {
-        this.setToken(token);
+  register(data: RegisterRequest): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('auth/register', data).pipe(
+      tap((response) => {
+        this.setToken(response.token);
       })
     );
   }
 
-  login(data: unknown): Observable<string> {
-    return this.apiService.post<string>('auth/login', data).pipe(
-      tap((token) => {
-        this.setToken(token);
+  login(data: LoginRequest): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('auth/login', data).pipe(
+      tap((response) => {
+        this.setToken(response.token);
       })
     );
   }

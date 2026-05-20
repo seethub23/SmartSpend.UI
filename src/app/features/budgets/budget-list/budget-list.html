@@ -1,0 +1,163 @@
+<div class="budgets">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>Budget Planner 🎯</h2>
+      <p>Set and track your monthly budgets</p>
+    </div>
+    <button class="btn-primary" (click)="openModal()">
+      + Set Budget
+    </button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="summary-card total">
+      <p>Total Budget</p>
+      <h3>{{ formatCurrency(totalBudget()) }}</h3>
+    </div>
+    <div class="summary-card spent">
+      <p>Total Spent</p>
+      <h3>{{ formatCurrency(totalSpent()) }}</h3>
+    </div>
+    <div class="summary-card remaining">
+      <p>Remaining</p>
+      <h3>{{ formatCurrency(totalRemaining()) }}</h3>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="loading">Loading budgets... ⏳</div>
+  } @else {
+
+    <!-- Budget Cards -->
+    <div class="budget-grid">
+      @for (budget of budgets(); track budget.budgetId) {
+        <div class="budget-card">
+
+          <!-- Header -->
+          <div class="budget-card-header">
+            <h4>{{ budget.categoryName }}</h4>
+            <button class="btn-delete"
+              (click)="deleteBudget(budget.budgetId)">🗑️</button>
+          </div>
+
+          <!-- Amounts -->
+          <div class="budget-amounts">
+            <span class="spent">
+              {{ formatCurrency(budget.spentAmount) }} spent
+            </span>
+            <span class="limit">
+              of {{ formatCurrency(budget.limitAmount) }}
+            </span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="Math.min(budget.spentPercentage, 100)"
+              [style.background]="getProgressColor(budget.spentPercentage)">
+            </div>
+          </div>
+
+          <!-- Percentage -->
+          <div class="budget-footer">
+            <span [style.color]="getProgressColor(budget.spentPercentage)">
+              {{ budget.spentPercentage }}% used
+            </span>
+            <span class="remaining">
+              {{ formatCurrency(budget.remainingAmount) }} left
+            </span>
+          </div>
+
+          <!-- Warning -->
+          @if (budget.spentPercentage >= 80) {
+            <div class="warning"
+              [class.danger]="budget.spentPercentage >= 100">
+              {{ budget.spentPercentage >= 100 ?
+                '🚨 Budget exceeded!' :
+                '⚠️ Budget almost full!' }}
+            </div>
+          }
+
+        </div>
+      } @empty {
+        <div class="empty-state">
+          No budgets set for this month!
+          Click "Set Budget" to get started 😊
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Add Budget Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()"></div>
+    <div class="modal">
+
+      <div class="modal-header">
+        <h3>Set Monthly Budget</h3>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-alert">⚠️ {{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()">
+
+        <div class="form-group">
+          <label>Category</label>
+          <select formControlName="categoryId">
+            <option value="">Select category</option>
+            @for (c of expenseCategories(); track c.categoryId) {
+              <option [value]="c.categoryId">{{ c.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Budget Amount (₹)</label>
+          <input type="number" formControlName="limitAmount"
+            placeholder="Enter budget limit"/>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Month</label>
+            <select formControlName="month">
+              @for (m of months; track m.value) {
+                <option [value]="m.value">{{ m.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Year</label>
+            <select formControlName="year">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+            class="btn-cancel" (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-save"
+            [disabled]="budgetForm.invalid">
+            Set Budget
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+</div>

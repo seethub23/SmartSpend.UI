@@ -1,0 +1,19 @@
+<header class="navbar">
+  <button
+    class="toggle-btn"
+    type="button"
+    aria-label="Toggle sidebar"
+    (click)="onToggleSidebar()"
+  >
+    <span aria-hidden="true">☰</span>
+  </button>
+
+  <div class="navbar-left">
+    <h2 class="page-title">SmartSpend</h2>
+  </div>
+
+  <div class="navbar-right">
+    <span class="date">{{ currentDate() | date: 'MMMM yyyy' }}</span>
+    <div class="avatar" aria-label="User profile" role="img">👤</div>
+  </div>
+</header>
