@@ -38,6 +38,21 @@ export const routes: Routes = [
         path: 'reports',
         loadChildren: () => import('./features/reports/reports.routes')
           .then((m) => m.reportRoutes)
+      },
+      {
+        path: 'recurring',
+        loadChildren: () => import('./features/recurring-list/recurring.routes')
+          .then(m => m.recurringRoutes)
+      },
+      {
+        path: 'settings',
+        loadChildren: () => import('./features/settings/settings.routes')
+          .then(m => m.settingsRoutes)
+      },
+      {
+        path: 'savings',
+        loadChildren: () => import('./features/savings/savings.routes')
+          .then(m => m.savingsRoutes)
       }
     ]
   },

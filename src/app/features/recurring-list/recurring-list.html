@@ -1,0 +1,221 @@
+<p>recurring-list works!</p>
+<div class="recurring">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>Recurring Transactions 🔄</h2>
+      <p>Manage your recurring income and expenses</p>
+    </div>
+    <button class="btn-primary" (click)="openModal()">
+      + Add Recurring
+    </button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-row">
+    <div class="summary-card">
+      <p>Total Recurring</p>
+      <h3>{{ recurring().length }}</h3>
+    </div>
+    <div class="summary-card active">
+      <p>Active</p>
+      <h3>{{ activeRecurring().length }}</h3>
+    </div>
+    <div class="summary-card inactive">
+      <p>Inactive</p>
+      <h3>{{ inactiveRecurring().length }}</h3>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading... ⏳</div>
+  } @else {
+
+    <!-- Active -->
+    <div class="section">
+      <h3 class="section-title">✅ Active</h3>
+      <div class="recurring-grid">
+        @for (r of activeRecurring(); track r.recurringId) {
+          <div class="recurring-card active">
+            <div class="card-header">
+              <div class="card-icon">
+                {{ getFrequencyIcon(r.frequency) }}
+              </div>
+              <div class="card-info">
+                <h4>{{ r.categoryName }}</h4>
+                <span class="frequency">{{ r.frequency }}</span>
+              </div>
+              <span class="badge"
+                [class.income]="r.type === 'Income'"
+                [class.expense]="r.type === 'Expense'">
+                {{ r.type }}
+              </span>
+            </div>
+
+            <div class="card-amount">
+              {{ formatCurrency(r.amount) }}
+            </div>
+
+            <div class="card-details">
+              <span>💳 {{ r.paymentMethod }}</span>
+              <span>📅 From {{ r.startDate | date:'dd MMM yyyy' }}</span>
+            </div>
+
+            @if (r.notes) {
+              <p class="card-notes">{{ r.notes }}</p>
+            }
+
+            <div class="card-actions">
+              <button class="btn-pause"
+                (click)="toggleActive(r.recurringId)">
+                ⏸️ Pause
+              </button>
+              <button class="btn-delete"
+                (click)="delete(r.recurringId)">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state">
+            No active recurring transactions!
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Inactive -->
+    @if (inactiveRecurring().length > 0) {
+      <div class="section">
+        <h3 class="section-title">⏸️ Paused</h3>
+        <div class="recurring-grid">
+          @for (r of inactiveRecurring(); track r.recurringId) {
+            <div class="recurring-card inactive">
+              <div class="card-header">
+                <div class="card-icon">
+                  {{ getFrequencyIcon(r.frequency) }}
+                </div>
+                <div class="card-info">
+                  <h4>{{ r.categoryName }}</h4>
+                  <span class="frequency">{{ r.frequency }}</span>
+                </div>
+              </div>
+
+              <div class="card-amount paused">
+                {{ formatCurrency(r.amount) }}
+              </div>
+
+              <div class="card-actions">
+                <button class="btn-resume"
+                  (click)="toggleActive(r.recurringId)">
+                  ▶️ Resume
+                </button>
+                <button class="btn-delete"
+                  (click)="delete(r.recurringId)">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()"></div>
+    <div class="modal">
+
+      <div class="modal-header">
+        <h3>Add Recurring Transaction</h3>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-alert">⚠️ {{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="recurringForm" (ngSubmit)="onSubmit()">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select formControlName="type">
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select formControlName="categoryId">
+              <option value="">Select category</option>
+              @for (c of filteredCategories(); track c.categoryId) {
+                <option [value]="c.categoryId">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" formControlName="amount"
+              placeholder="Enter amount"/>
+          </div>
+
+          <div class="form-group">
+            <label>Frequency</label>
+            <select formControlName="frequency">
+              @for (f of frequencies; track f) {
+                <option [value]="f">{{ f }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select formControlName="paymentMethod">
+              @for (p of paymentMethods; track p) {
+                <option [value]="p">{{ p }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" formControlName="startDate"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>End Date (optional)</label>
+          <input type="date" formControlName="endDate"/>
+        </div>
+
+        <div class="form-group">
+          <label>Notes (optional)</label>
+          <input type="text" formControlName="notes"
+            placeholder="Add a note..."/>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+            class="btn-cancel" (click)="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-save"
+            [disabled]="recurringForm.invalid">
+            Add Recurring
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+</div>

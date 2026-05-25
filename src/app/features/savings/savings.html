@@ -1,0 +1,195 @@
+<div class="savings">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>Savings 🏦</h2>
+      <p>Track your savings across RD, FD, Mutual Funds and more</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary"
+        (click)="showAddCategoryModal.set(true)">
+        + Add Category
+      </button>
+      <button class="btn-primary"
+        routerLink="/transactions">
+        + Add Savings
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Card -->
+  <div class="total-card">
+    <div class="total-info">
+      <p>Total Savings</p>
+      <h2>{{ formatCurrency(totalSavings()) }}</h2>
+      <span>
+        {{ filteredSavings().length }} transactions this month
+      </span>
+    </div>
+    <div class="total-icon">🏦</div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card">
+    <select
+      [value]="filterMonth()"
+      (change)="filterMonth.set(+$any($event.target).value)">
+      @for (m of months; track m.value) {
+        <option [value]="m.value">{{ m.label }}</option>
+      }
+    </select>
+
+    <select
+      [value]="filterYear()"
+      (change)="filterYear.set(+$any($event.target).value)">
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+    </select>
+
+    <select
+      [value]="filterCategory()"
+      (change)="filterCategory.set($any($event.target).value)">
+      <option value="">All Categories</option>
+      @for (c of savingsCategories(); track c.categoryId) {
+        <option [value]="c.name">{{ c.name }}</option>
+      }
+    </select>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading savings... ⏳</div>
+  } @else {
+
+    <div class="content-grid">
+
+      <!-- Category Breakdown -->
+      <div class="breakdown-card">
+        <h3>Savings by Category</h3>
+
+        @if (savingsByCategory().length > 0) {
+          <div class="category-list">
+            @for (item of savingsByCategory(); track item.name) {
+              <div class="category-item">
+                <div class="category-info">
+                  <span class="category-name">{{ item.name }}</span>
+                  <span class="category-amount">
+                    {{ formatCurrency(item.amount) }}
+                  </span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill"
+                    [style.width.%]="getPercentage(item.amount)">
+                  </div>
+                </div>
+                <span class="percentage">
+                  {{ getPercentage(item.amount) }}%
+                </span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            No savings recorded this month!
+          </div>
+        }
+      </div>
+
+      <!-- Savings Transactions -->
+      <div class="transactions-card">
+        <h3>Savings Transactions</h3>
+
+        @if (filteredSavings().length > 0) {
+          <div class="transaction-list">
+            @for (t of filteredSavings(); track t.transactionId) {
+              <div class="transaction-item">
+                <div class="transaction-icon">🏦</div>
+                <div class="transaction-info">
+                  <p class="transaction-category">
+                    {{ t.categoryName }}
+                  </p>
+                  <p class="transaction-date">
+                    {{ t.transactionDate | date:'dd MMM yyyy' }}
+                  </p>
+                </div>
+                <div class="transaction-notes">
+                  {{ t.notes || '-' }}
+                </div>
+                <div class="transaction-amount">
+                  {{ formatCurrency(t.amount) }}
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            No savings transactions found!
+            Click "Add Savings" to record one 😊
+          </div>
+        }
+      </div>
+
+    </div>
+
+    <!-- Savings Categories Management -->
+    <div class="categories-card">
+      <h3>Savings Categories</h3>
+      <div class="categories-grid">
+        @for (c of savingsCategories(); track c.categoryId) {
+          <div class="category-chip"
+            [class.default]="c.isDefault">
+            <span>🏦 {{ c.name }}</span>
+            @if (!c.isDefault) {
+              <button (click)="deleteCategory(c.categoryId)">✕</button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+  }
+
+  <!-- Add Category Modal -->
+  @if (showAddCategoryModal()) {
+    <div class="modal-overlay"
+      (click)="showAddCategoryModal.set(false)">
+    </div>
+    <div class="modal">
+
+      <div class="modal-header">
+        <h3>Add Savings Category</h3>
+        <button class="close-btn"
+          (click)="showAddCategoryModal.set(false)">✕</button>
+      </div>
+
+      @if (categoryError()) {
+        <div class="error-alert">⚠️ {{ categoryError() }}</div>
+      }
+
+      <form [formGroup]="categoryForm" (ngSubmit)="addCategory()">
+
+        <div class="form-group">
+          <label>Category Name</label>
+          <input
+            type="text"
+            formControlName="name"
+            placeholder="e.g. My SIP, Gold ETF, Emergency Fund"/>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel"
+            (click)="showAddCategoryModal.set(false)">
+            Cancel
+          </button>
+          <button type="submit" class="btn-save"
+            [disabled]="categoryForm.invalid">
+            Add Category
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+</div>

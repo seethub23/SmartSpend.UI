@@ -1,121 +1,130 @@
 <div class="dashboard">
+
+  <!-- Header -->
   <div class="dashboard-header">
     <div>
-      <h1>Good {{ getGreeting() }}, Kutty</h1>
-      <p>Here's your financial summary for {{ monthLabel }}</p>
+      <h2>Good {{ getGreeting() }}, Kutty! 👋</h2>
+      <p>Here's your financial summary for {{ currentMonth }}/{{ currentYear }}</p>
     </div>
-
-    <a class="btn-add" routerLink="/transactions">Add Transaction</a>
+    <button class="btn-add" routerLink="/transactions">
+      + Add Transaction
+    </button>
   </div>
 
-  @if (isLoading()) {
-    <div class="loading" role="status" aria-live="polite">
-      Loading your dashboard...
-    </div>
-  } @else {
-    @if (loadError()) {
-      <div class="error-alert" role="alert">
-        {{ loadError() }}
-      </div>
-    }
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    Loading your dashboard... ⏳
+  </div>
 
-    <div class="cards-grid" aria-label="Financial summary">
-      <section class="card income">
-        <div class="card-icon" aria-hidden="true">₹</div>
+  <div *ngIf="!isLoading">
+
+    <!-- Summary Cards -->
+    <div class="cards-grid">
+
+      <div class="card income">
+        <div class="card-icon">💰</div>
         <div class="card-info">
           <p>Total Income</p>
-          <h2>{{ formatCurrency(totalIncome()) }}</h2>
+          <h3>{{ formatCurrency(totalIncome) }}</h3>
         </div>
-      </section>
+      </div>
 
-      <section class="card expense">
-        <div class="card-icon" aria-hidden="true">−</div>
+      <div class="card expense">
+        <div class="card-icon">💸</div>
         <div class="card-info">
           <p>Total Expense</p>
-          <h2>{{ formatCurrency(totalExpense()) }}</h2>
+          <h3>{{ formatCurrency(totalExpense) }}</h3>
         </div>
-      </section>
+      </div>
 
-      <section class="card savings">
-        <div class="card-icon" aria-hidden="true">+</div>
+      <div class="card savings">
+        <div class="card-icon">🏦</div>
         <div class="card-info">
           <p>Total Savings</p>
-          <h2>{{ formatCurrency(totalSavings()) }}</h2>
+          <h3>{{ formatCurrency(totalSavings) }}</h3>
         </div>
-      </section>
+      </div>
 
-      <section class="card transactions">
-        <div class="card-icon" aria-hidden="true">#</div>
+      <div class="card transactions">
+        <div class="card-icon">📋</div>
         <div class="card-info">
           <p>Transactions</p>
-          <h2>{{ totalTransactions() }}</h2>
+          <h3>{{ totalTransactions }}</h3>
         </div>
-      </section>
+      </div>
+
     </div>
 
+    <!-- Charts Row -->
     <div class="charts-grid">
-      <section class="chart-card" aria-label="Income versus expense chart">
-        <apx-chart
-          [series]="barChartOptions().series"
-          [chart]="barChartOptions().chart"
-          [xaxis]="barChartOptions().xaxis"
-          [colors]="barChartOptions().colors"
-          [title]="barChartOptions().title"
-        />
-      </section>
 
-      <section class="chart-card" aria-label="Category spending chart">
+      <!-- Bar Chart -->
+      <div class="chart-card">
         <apx-chart
-          [series]="pieChartOptions().series"
-          [chart]="pieChartOptions().chart"
-          [labels]="pieChartOptions().labels"
-          [colors]="pieChartOptions().colors"
-          [title]="pieChartOptions().title"
-        />
-      </section>
+          [series]="barChartOptions.series"
+          [chart]="barChartOptions.chart"
+          [xaxis]="barChartOptions.xaxis"
+          [colors]="barChartOptions.colors"
+          [title]="barChartOptions.title">
+        </apx-chart>
+      </div>
+
+      <!-- Pie Chart -->
+      <div class="chart-card">
+        <apx-chart
+          [series]="pieChartOptions.series"
+          [chart]="pieChartOptions.chart"
+          [labels]="pieChartOptions.labels"
+          [colors]="pieChartOptions.colors"
+          [title]="pieChartOptions.title">
+        </apx-chart>
+      </div>
+
     </div>
 
-    <section class="recent-card">
+    <!-- Recent Transactions -->
+    <div class="recent-card">
       <div class="recent-header">
-        <h2>Recent Transactions</h2>
-        <a routerLink="/transactions">View all</a>
+        <h3>Recent Transactions</h3>
+        <a routerLink="/transactions">View all →</a>
       </div>
 
       <div class="transaction-list">
-        @for (transaction of recentTransactions(); track transaction.transactionId) {
-          <article class="transaction-item">
-            <div class="transaction-icon" aria-hidden="true">
-              {{ transaction.type === 'Income' ? '+' : '-' }}
-            </div>
+        <div
+          class="transaction-item"
+          *ngFor="let t of recentTransactions">
 
-            <div class="transaction-info">
-              <h3 class="transaction-category">{{ transaction.categoryName }}</h3>
-              <p class="transaction-date">
-                {{ transaction.transactionDate | date: 'dd MMM yyyy' }}
-              </p>
-            </div>
-
-            <p class="transaction-notes">
-              {{ transaction.notes || '-' }}
-            </p>
-
-            <p
-              class="transaction-amount"
-              [class.income]="transaction.type === 'Income'"
-              [class.expense]="transaction.type === 'Expense'"
-            >
-              {{ transaction.type === 'Income' ? '+' : '-' }}
-              {{ formatCurrency(transaction.amount) }}
-            </p>
-          </article>
-        }
-
-        @if (!hasTransactions()) {
-          <div class="empty-state">
-            No transactions yet. Add your first transaction to get started.
+          <div class="transaction-icon">
+            {{ t.type === 'Income' ? '💰' : '💸' }}
           </div>
-        }
+
+          <div class="transaction-info">
+            <p class="transaction-category">{{ t.categoryName }}</p>
+            <p class="transaction-date">
+              {{ t.transactionDate | date:'dd MMM yyyy' }}
+            </p>
+          </div>
+
+          <div class="transaction-notes">
+            {{ t.notes || '-' }}
+          </div>
+
+          <div class="transaction-amount"
+            [class.income]="t.type === 'Income'"
+            [class.expense]="t.type === 'Expense'">
+            {{ t.type === 'Income' ? '+' : '-' }}
+            {{ formatCurrency(t.amount) }}
+          </div>
+
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="recentTransactions.length === 0">
+          No transactions yet! Click "Add Transaction" to get started 😊
+        </div>
+
       </div>
-    </section>
-  }
+    </div>
+
+  </div>
 </div>

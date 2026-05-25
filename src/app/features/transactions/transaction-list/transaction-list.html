@@ -1,154 +1,122 @@
 <div class="transactions">
+
+  <!-- Header -->
   <div class="page-header">
     <div>
-      <h2>Transactions</h2>
+      <h2>Transactions 💸</h2>
       <p>Track all your income and expenses</p>
     </div>
-    <button class="btn-primary" type="button" (click)="openAddModal()">
-      Add Transaction
+    <button class="btn-primary" (click)="openAddModal()">
+      + Add Transaction
     </button>
   </div>
 
+  <!-- Summary Row -->
   <div class="summary-row">
     <div class="summary-card income">
       <p>Total Income</p>
-      <h3>{{ formatCurrency(totalIncome()) }}</h3>
+      <h3>{{ formatCurrency(totalIncome) }}</h3>
     </div>
     <div class="summary-card expense">
       <p>Total Expense</p>
-      <h3>{{ formatCurrency(totalExpense()) }}</h3>
+      <h3>{{ formatCurrency(totalExpense) }}</h3>
     </div>
     <div class="summary-card savings">
       <p>Net Savings</p>
-      <h3>{{ formatCurrency(totalIncome() - totalExpense()) }}</h3>
+      <h3>{{ formatCurrency(totalIncome - totalExpense) }}</h3>
     </div>
   </div>
 
+  <!-- Filters -->
   <div class="filters-card">
-    <label>
-      <span class="visually-hidden">Month</span>
-      <select [ngModel]="filterMonth()" (ngModelChange)="setFilterMonth($event)">
-        <option [ngValue]="1">January</option>
-        <option [ngValue]="2">February</option>
-        <option [ngValue]="3">March</option>
-        <option [ngValue]="4">April</option>
-        <option [ngValue]="5">May</option>
-        <option [ngValue]="6">June</option>
-        <option [ngValue]="7">July</option>
-        <option [ngValue]="8">August</option>
-        <option [ngValue]="9">September</option>
-        <option [ngValue]="10">October</option>
-        <option [ngValue]="11">November</option>
-        <option [ngValue]="12">December</option>
-      </select>
-    </label>
+    <select [(ngModel)]="filterMonth" (change)="applyFilters()">
+      <option value="1">January</option>
+      <option value="2">February</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
 
-    <label>
-      <span class="visually-hidden">Year</span>
-      <select [ngModel]="filterYear()" (ngModelChange)="setFilterYear($event)">
-        <option [ngValue]="2024">2024</option>
-        <option [ngValue]="2025">2025</option>
-        <option [ngValue]="2026">2026</option>
-      </select>
-    </label>
+    <select [(ngModel)]="filterYear" (change)="applyFilters()">
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+    </select>
 
-    <label>
-      <span class="visually-hidden">Type</span>
-      <select [ngModel]="filterType()" (ngModelChange)="setFilterType($event)">
-        <option value="">All Types</option>
-        <option value="Income">Income</option>
-        <option value="Expense">Expense</option>
-      </select>
-    </label>
+    <select [(ngModel)]="filterType" (change)="applyFilters()">
+      <option value="">All Types</option>
+      <option value="Income">Income</option>
+      <option value="Expense">Expense</option>
+      <option value="Savings">🏦 Savings</option>
+    </select>
 
-    <label>
-      <span class="visually-hidden">Category</span>
-      <select [ngModel]="filterCategory()" (ngModelChange)="setFilterCategory($event)">
-        <option value="">All Categories</option>
-        @for (category of categories(); track category.categoryId) {
-          <option [value]="category.name">{{ category.name }}</option>
-        }
-      </select>
-    </label>
+    <select [(ngModel)]="filterCategory" (change)="applyFilters()">
+      <option value="">All Categories</option>
+      <option *ngFor="let c of categories" [value]="c.name">
+        {{ c.name }}
+      </option>
+    </select>
   </div>
 
-  @if (isLoading()) {
-    <div class="loading" role="status" aria-live="polite">Loading transactions...</div>
-  } @else {
-    <div class="table-card">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Payment</th>
-            <th>Notes</th>
-            <th>Amount</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (transaction of filteredTransactions(); track transaction.transactionId) {
-            <tr>
-              <td>{{ transaction.transactionDate | date: 'dd MMM yyyy' }}</td>
-              <td>{{ transaction.categoryName }}</td>
-              <td>
-                <span
-                  class="badge"
-                  [class.income]="transaction.type === 'Income'"
-                  [class.expense]="transaction.type === 'Expense'"
-                >
-                  {{ transaction.type }}
-                </span>
-              </td>
-              <td>{{ transaction.paymentMethod }}</td>
-              <td>{{ transaction.notes || '-' }}</td>
-              <td
-                class="amount"
-                [class.income]="transaction.type === 'Income'"
-                [class.expense]="transaction.type === 'Expense'"
-              >
-                {{ transaction.type === 'Income' ? '+' : '-' }}
-                {{ formatCurrency(transaction.amount) }}
-              </td>
-              <td class="actions">
-                <button
-                  class="btn-edit"
-                  type="button"
-                  aria-label="Edit transaction"
-                  (click)="openEditModal(transaction)"
-                >
-                  Edit
-                </button>
-                <button
-                  class="btn-delete"
-                  type="button"
-                  aria-label="Delete transaction"
-                  (click)="deleteTransaction(transaction.transactionId)"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="7" class="empty-state">
-                No transactions found for this period.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">Loading transactions... ⏳</div>
 
-  @if (showModal()) {
-    <app-add-transaction-modal
-      [transaction]="selectedTransaction()"
-      [categories]="categories()"
-      (save)="onTransactionSaved()"
-      (closeModal)="closeModal()"
-    />
-  }
+  <!-- Transaction Table -->
+  <div class="table-card" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Payment</th>
+          <th>Notes</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filteredTransactions">
+          <td>{{ t.transactionDate | date:'dd MMM yyyy' }}</td>
+          <td>{{ t.categoryName }}</td>
+          <td>
+            <span class="badge" [class.income]="t.type === 'Income'" [class.expense]="t.type === 'Expense'"
+              [class.savings]="t.type === 'Savings'">
+              {{ t.type }}
+            </span>
+          </td>
+          <td>{{ t.paymentMethod }}</td>
+          <td>{{ t.notes || '-' }}</td>
+          <td class="amount" [class.income]="t.type === 'Income'" [class.expense]="t.type === 'Expense'">
+            {{ t.type === 'Income' ? '+' : '-' }}
+            {{ formatCurrency(t.amount) }}
+          </td>
+          <td class="actions">
+            <button class="btn-edit" (click)="openEditModal(t)">✏️</button>
+            <button class="btn-delete" (click)="deleteTransaction(t.transactionId)">🗑️</button>
+          </td>
+        </tr>
+
+        <!-- Empty state -->
+        <tr *ngIf="filteredTransactions.length === 0">
+          <td colspan="7" class="empty-state">
+            No transactions found for this period! 😊
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <app-add-transaction-modal *ngIf="showModal" [transaction]="selectedTransaction" [categories]="categories"
+    (onSave)="onTransactionSaved()" (onClose)="closeModal()">
+  </app-add-transaction-modal>
+
 </div>

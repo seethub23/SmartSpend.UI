@@ -24,7 +24,9 @@ export class SidebarComponent {
     { label: 'Transactions', icon: '💸', route: '/transactions' },
     { label: 'Budgets', icon: '🎯', route: '/budgets' },
     { label: 'Reports', icon: '📈', route: '/reports' },
-    { label: 'Settings', icon: '⚙️', route: '/settings' }
+    { label: 'Savings', icon: '🏦', route: '/savings' },
+    { label: 'Recurring', icon: '🔄', route: '/recurring' },
+    { label: 'Settings', icon: '⚙️', route: '/settings' },
   ];
 
   private readonly authService = inject(AuthService);

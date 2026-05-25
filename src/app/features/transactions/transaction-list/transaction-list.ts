@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { CategoryService } from '../../../core/services/category.service';
@@ -9,64 +10,37 @@ import { AddTransactionModalComponent } from '../add-transaction-modal/add-trans
 
 @Component({
   selector: 'app-transaction-list',
+  standalone: true,
   imports: [
-    DatePipe,
+    CommonModule,
     FormsModule,
     AddTransactionModalComponent
   ],
   templateUrl: './transaction-list.html',
-  styleUrl: './transaction-list.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./transaction-list.scss']
 })
 export class TransactionListComponent implements OnInit {
-  private readonly transactionService = inject(TransactionService);
-  private readonly categoryService = inject(CategoryService);
 
-  transactions = signal<Transaction[]>([]);
-  categories = signal<Category[]>([]);
+  transactions: Transaction[] = [];
+  filteredTransactions: Transaction[] = [];
+  categories: Category[] = [];
 
   // Filters
-  filterType = signal('');
-  filterCategory = signal('');
-  filterMonth = signal(new Date().getMonth() + 1);
-  filterYear = signal(new Date().getFullYear());
+  filterType = '';
+  filterCategory = '';
+  filterMonth = new Date().getMonth() + 1;
+  filterYear = new Date().getFullYear();
 
   // Modal
-  showModal = signal(false);
-  selectedTransaction = signal<Transaction | null>(null);
+  showModal = false;
+  selectedTransaction: Transaction | null = null;
 
-  isLoading = signal(true);
+  isLoading = true;
 
-  filteredTransactions = computed(() => {
-    const filterType = this.filterType();
-    const filterCategory = this.filterCategory();
-    const filterMonth = this.filterMonth();
-    const filterYear = this.filterYear();
-
-    return this.transactions().filter(transaction => {
-      const date = new Date(transaction.transactionDate);
-      const matchMonth = date.getMonth() + 1 === filterMonth;
-      const matchYear = date.getFullYear() === filterYear;
-      const matchType = filterType ? transaction.type === filterType : true;
-      const matchCategory = filterCategory
-        ? transaction.categoryName === filterCategory
-        : true;
-
-      return matchMonth && matchYear && matchType && matchCategory;
-    });
-  });
-
-  totalIncome = computed(() =>
-    this.filteredTransactions()
-      .filter(transaction => transaction.type === 'Income')
-      .reduce((sum, transaction) => sum + transaction.amount, 0)
-  );
-
-  totalExpense = computed(() =>
-    this.filteredTransactions()
-      .filter(transaction => transaction.type === 'Expense')
-      .reduce((sum, transaction) => sum + transaction.amount, 0)
-  );
+  constructor(
+    private transactionService: TransactionService,
+    private categoryService: CategoryService
+  ) { }
 
   ngOnInit() {
     this.loadTransactions();
@@ -74,15 +48,12 @@ export class TransactionListComponent implements OnInit {
   }
 
   loadTransactions() {
-    this.isLoading.set(true);
+    this.isLoading = true;
     this.transactionService.getAll().subscribe({
       next: (data) => {
-        this.transactions.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.transactions.set([]);
-        this.isLoading.set(false);
+        this.transactions = data;
+        this.applyFilters();
+        this.isLoading = false;
       }
     });
   }
@@ -90,24 +61,36 @@ export class TransactionListComponent implements OnInit {
   loadCategories() {
     this.categoryService.getAll().subscribe({
       next: (data) => {
-        this.categories.set(data);
+        this.categories = data;
       }
     });
   }
 
+  applyFilters() {
+    this.filteredTransactions = this.transactions.filter(t => {
+      const date = new Date(t.transactionDate);
+      const matchMonth = date.getMonth() + 1 === this.filterMonth;
+      const matchYear = date.getFullYear() === this.filterYear;
+      const matchType = this.filterType ? t.type === this.filterType : true;
+      const matchCategory = this.filterCategory ?
+        t.categoryName === this.filterCategory : true;
+      return matchMonth && matchYear && matchType && matchCategory;
+    });
+  }
+
   openAddModal() {
-    this.selectedTransaction.set(null);
-    this.showModal.set(true);
+    this.selectedTransaction = null;
+    this.showModal = true;
   }
 
   openEditModal(transaction: Transaction) {
-    this.selectedTransaction.set(transaction);
-    this.showModal.set(true);
+    this.selectedTransaction = transaction;
+    this.showModal = true;
   }
 
   closeModal() {
-    this.showModal.set(false);
-    this.selectedTransaction.set(null);
+    this.showModal = false;
+    this.selectedTransaction = null;
   }
 
   onTransactionSaved() {
@@ -131,19 +114,15 @@ export class TransactionListComponent implements OnInit {
     }).format(amount);
   }
 
-  setFilterMonth(month: number): void {
-    this.filterMonth.set(month);
+  get totalIncome(): number {
+    return this.filteredTransactions
+      .filter(t => t.type === 'Income')
+      .reduce((sum, t) => sum + t.amount, 0);
   }
 
-  setFilterYear(year: number): void {
-    this.filterYear.set(year);
-  }
-
-  setFilterType(type: string): void {
-    this.filterType.set(type);
-  }
-
-  setFilterCategory(category: string): void {
-    this.filterCategory.set(category);
+  get totalExpense(): number {
+    return this.filteredTransactions
+      .filter(t => t.type === 'Expense')
+      .reduce((sum, t) => sum + t.amount, 0);
   }
 }
